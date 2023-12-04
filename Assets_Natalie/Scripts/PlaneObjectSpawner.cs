@@ -3,27 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(ARRaycastManager))]
+[RequireComponent(typeof(ARPlaneManager))]
 public class PlaneObjectSpawner : MonoBehaviour
 {
+    [SerializeField]
     public GameObject[] mushroom;
 
-    private GameObject spawnedObject;
+    private List<GameObject> spawnedObjects = new List<GameObject>();
+
+    [SerializeField]
     public int numberOfMushroom;
+    public Text numberOfMushroomText;
     private int mushroomCounter = 0;
+    public Text mushroomCounterText;
 
+    // Contains the player's position (constantly updated)
     public PlayerLocation playerLocation;
-    private float playerLongitude;
-    private float playerLatitude;
-    private float playerAltitude;
-
-    public float mushroomLongitude;
-    public float mushroomLatitude;
-    public float mushroomAltitude;
+    
+    // Array of all mushroom positions
+    private MushroomPosition mushroomPositions;
 
     // How far away should a mushroom spawn
+    [SerializeField]
     public float distance;
+    public Text longitudeDifferenceText;
+    public Text latitudeDifferenceText;
 
     private ARRaycastManager _arRaycastManager;
     private ARPlaneManager _arPlaneManager;
@@ -31,19 +38,34 @@ public class PlaneObjectSpawner : MonoBehaviour
 
     static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
-    void Start()
-    {
-        // TODO: move to Update()?
-        // Get the player's location
-        playerLongitude = playerLocation.longitudeValue;
-        playerLatitude = playerLocation.latitudeValue;
-        playerAltitude = playerLocation.altitudeValue;
-    }
-
     private void Awake()
     {
         _arRaycastManager = GetComponent<ARRaycastManager>();
         _arPlaneManager = GetComponent<ARPlaneManager>();
+
+        numberOfMushroomText.text = numberOfMushroom.ToString();
+    }
+
+    bool findCloseMushroom()
+    {
+        // TODO: get mushroom locatioins
+        // Iterate through all possible mushroom positions
+        for(int i = 0; i < mushroomPositions.numberAllTheMushroom; i++) {
+            // Check if player is close to mushroom
+            float longitudeDifference = Mathf.Abs(playerLocation.longitudeValue - mushroomPositions.GetMushroom(i).mushroomLongitude);
+            float latitudeDifference = Mathf.Abs(playerLocation.latitudeValue - mushroomPositions.GetMushroom(i).mushroomLatitude);
+
+            longitudeDifferenceText.text = longitudeDifference.ToString();
+            latitudeDifferenceText.text = latitudeDifference.ToString();
+
+            if(longitudeDifference < distance && latitudeDifference < distance)
+            {
+                // TODO: doesn't work yet
+                return true;
+            }
+        }
+        
+        return false; 
     }
 
     bool TryGetTouchPosition(out Vector2 touchPosition)
@@ -70,14 +92,17 @@ public class PlaneObjectSpawner : MonoBehaviour
         {
             var hitPose = hits[0].pose;
 
-            // TODO: why is mushroomCounter < numberOfMushroom not working
-            if(spawnedObject == null && mushroom != null) {
+            if(mushroomCounter < numberOfMushroom && mushroom != null) {
                 // Resize mushroom
                 mushroom[0].transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 
                 // Spawn mushroom
-                spawnedObject = Instantiate(mushroom[0], hitPose.position, hitPose.rotation);
+                // TODO: make sure there is enough space between two mushrooms
+                GameObject spawnedObject = Instantiate(mushroom[0], hitPose.position, hitPose.rotation);
+                spawnedObjects.Add(spawnedObject);
                 mushroomCounter++;
+                
+                mushroomCounterText.text = mushroomCounter.ToString();
             }
         }
     }
@@ -89,53 +114,30 @@ public class PlaneObjectSpawner : MonoBehaviour
         {
             var hitPose = hits[0].pose;
 
-            // Get a random position on plane
-            //ARPlane plane = hits[0].trackable as ARPlane;
-            ARPlane plane = null;
-            Vector3 randomPosition = GetRandomPositionOnPlane(plane);
-
-            // TODO: why is mushroomCounter < numberOfMushroom not working
-            if(spawnedObject == null && mushroom != null) {
+            if(mushroomCounter < numberOfMushroom && mushroom != null) {
                 // Resize mushroom
                 mushroom[0].transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 
                 // Spawn mushroom
-                spawnedObject = Instantiate(mushroom[0], randomPosition, hitPose.rotation);
+                // TODO: make sure there is enough space between two mushrooms
+                GameObject spawnedObject = Instantiate(mushroom[0], hitPose.position, hitPose.rotation);
+                spawnedObjects.Add(spawnedObject);
                 mushroomCounter++;
+
+                mushroomCounterText.text = mushroomCounter.ToString();
             }
         }
-    }
-
-    Vector3 GetRandomPositionOnPlane(ARPlane plane)
-    {
-        // Get random position within the plane
-        Vector2 planeExtents = plane.extents;
-
-        float randomX = Random.Range(-planeExtents.x / 2f, planeExtents.x / 2f);
-        float randomZ = Random.Range(-planeExtents.y / 2f, planeExtents.y / 2f);
-
-        // calculate the height of the plane: Ax + By + Cz + D = 0
-        Vector3 planePosition = plane.transform.position;
-        Vector3 planeNormal = plane.transform.up;
-
-        float height = -(planeNormal.x * planePosition.x + planeNormal.y * planePosition.y + planeNormal.z * planePosition.z) / planeNormal.y;
-    
-        return new Vector3(randomX + planePosition.x, height, randomZ + planePosition.z);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Check if player is close to mushroom
-        float longitudeDifference = Mathf.Abs(playerLongitude -mushroomLongitude);
-        float latitudeDifference = Mathf.Abs(playerLatitude - mushroomLatitude);
+        // Check if a mushroom is near the player
+        // TODO: doesn't work yet
+        //findCloseMushroom();
 
-        if(longitudeDifference < distance && latitudeDifference < distance)
-        {
-            // TODO: doesn't work yet
-        } 
-
-        SpawnOnTouch();
-        //RandomSpawn();
+        // Spawn mushroom
+        //SpawnOnTouch();
+        RandomSpawn();
     }
 }

@@ -611,9 +611,9 @@ MonoBehaviour:
   - {fileID: 4621031029870577148, guid: fb97ec402e7f01746acfcc790d01bfd0, type: 3}
   numberOfMushroom: 1
   playerLocation: {fileID: 1548230760}
-  mushroomLongitude: 47.67653
-  mushroomLatitude: 12.17861
-  mushroomAltitude: 526.3
+  mushroomLongitude: 0
+  mushroomLatitude: 0
+  mushroomAltitude: 0
   distance: 0.5
 --- !u!114 &383083751
 MonoBehaviour:
