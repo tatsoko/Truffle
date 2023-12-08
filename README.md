@@ -16,3 +16,6 @@ However, at the moment all these mushroom will spawn as fast as possible, meanin
 A function, to keep a minimum distance between the spawned mushrooms, needs to be added.
 
 More mushroom models can be added to "Mushroom" in the Unity Inspector to spawn different kind of mushroom.
+
+mapboxk
+pk.eyJ1IjoidGF0c29rb2xhIiwiYSI6ImNsb3NtN2lwYjAxdmUybW92ODRrb3Q5eWgifQ.1sLAKVAqj4TeZJylRQAM6Q 
