@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using SimpleJSON;
+using Mapbox.Examples;
 //using Mapbox.Examples;
 
 public class ServerTalker : MonoBehaviour
 {
+    //public static ServerTalker Instance { set; get; }
     private string remote_url = "http://16.170.112.13:8000/api/mushroom/location/";
     private string local_url = "http://localhost:8000/api/mushroom/location/";
-    public double latitude = 48.15945;
-    public double longitude = 11.56434;
-    //LocationStatus playerLocation;
-    //[SerializeField]
-    //SpawnOnMap spawnOnMap;
-    // Start is called before the first frame update
+    //float latitude = 48.26265f;
+    //float longitude = 11.66808f;
+    [SerializeField]
+    SpawnOnMap spawnOnMap;
+    public string request_result;
 
     void Start()
     {
@@ -31,20 +32,24 @@ public class ServerTalker : MonoBehaviour
         //Debug.Log(playerLocation.GetLocationLat());
         //Debug.Log(playerLocation.GetLocationLon());
         //Debug.Log(currentPlayerlocation.Longitude.ToString());
-        //UnityWebRequest www = UnityWebRequest.Get(address + GPS.Instance.latitude.ToString()+GPS.Instance.longitude.ToString());
-        UnityWebRequest www = UnityWebRequest.Get(address + latitude.ToString()+"/"+ longitude.ToString());
+        LocationStatus playerLocation = GameObject.Find("Canvas").GetComponent<LocationStatus>();
+        
+        UnityWebRequest www = UnityWebRequest.Get(address + playerLocation.GetLocationLat().ToString()+playerLocation.GetLocationLon().ToString());
+
+        // UnityWebRequest www = UnityWebRequest.Get(address + latitude.ToString()+"/"+ longitude.ToString());
         yield return www.SendWebRequest();
 
         if(www.result != UnityWebRequest.Result.Success)
         {
+            request_result = "request server failed";
             Debug.LogError("Something went wrong: " + www.error);
         }
         else
         {
-           // Debug.Log( www.downloadHandler.text );
-
+            // Debug.Log( www.downloadHandler.text );
+            request_result = "request server success";
             ProcessServerResponse(www.downloadHandler.text);
-            //spawnOnMap.SpawnObject();
+            spawnOnMap.SpawnObject();
         }
     }
 
@@ -57,15 +62,15 @@ public class ServerTalker : MonoBehaviour
             string x = node["response"][i]["latitude"]["$numberDecimal"];
             string y = node["response"][i]["longitude"]["$numberDecimal"];
             string test_location = x + "," + y;
-           //spawnOnMap._locationStrings.Add(test_location);
+           spawnOnMap._locationStrings.Add(test_location);
             
             Debug.Log(test_location);
         }
 
-        Vector2 position = new Vector2(node["response"][0]["latitude"]["$numberDecimal"].AsFloat, node["response"][0]["longitude"]["$numberDecimal"].AsFloat);
-
-        GetComponent<MushroomPosition>().SetPosition(position);
     }
 
-    
+    private void Update()
+    {
+        //Instance = this;
+    }
 }
