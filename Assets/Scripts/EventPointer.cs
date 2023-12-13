@@ -21,8 +21,44 @@ public class EventPointer : MonoBehaviour
     void Update()
     {
         FloatAndRotatePointer();
-    }
 
+        if (Input.touchCount > 0)
+        {
+            // Loop through all the touches
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                // Get the current touch
+                Touch touch = Input.GetTouch(i);
+
+                // Check if the touch is over the current GameObject
+                if (IsTouchOverObject(touch))
+                {
+                    // Perform actions when the GameObject is touched
+                    HandleTouch();
+                }
+            }
+        }
+    }
+    bool IsTouchOverObject(Touch touch)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(touch.position);
+        RaycastHit hit;
+
+        // Cast a ray and check if it hits the GameObject
+        if (Physics.Raycast(ray, out hit))
+        {
+            return hit.collider.gameObject == gameObject;
+        }
+
+        return false;
+    }
+    void HandleTouch()
+    {
+        // Do something when the GameObject is touched
+        Debug.Log("Object Touched!");
+        GameObject.Find("GameManager").GetComponent<GameManager>().MushroomPosition.Set((float)eventPos.x, (float)eventPos.y, 0);
+        GameObject.Find("GameManager").GetComponent<GameManager>().openMushroom = true;
+    }
     void FloatAndRotatePointer()
     {
         transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
@@ -31,7 +67,7 @@ public class EventPointer : MonoBehaviour
 
     private void OnMouseDown()
     {
-        GameObject.Find("GameManager").GetComponent<GameManager>().MushroomPosition.Set((float)eventPos.x, (float)eventPos.y, 0);
+        
         //playerLocation = GameObject.Find("Canvas").GetComponent<LocationStatus>();
         //var currentPlayerlocation = new GeoCoordinatePortable.GeoCoordinate(playerLocation.GetLocationLat(), playerLocation.GetLocationLon());
         //var eventLocation = new GeoCoordinatePortable.GeoCoordinate(eventPos[0], eventPos[1]);

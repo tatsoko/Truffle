@@ -6,16 +6,24 @@ using Mapbox.Examples;
 
 public class GPSTextUpdate : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI coordinates;
+    [SerializeField] public TextMeshProUGUI coordinates;
     [SerializeField]
     SpawnOnMap spawnOnMap;
+    [SerializeField]
     ServerTalker serverTalker;
+
+    private void Start()
+    {
+        
+    }
 
     private void Update()
        
     {
-        LocationStatus playerLocation = GameObject.Find("Canvas").GetComponent<LocationStatus>();
-        coordinates.text = "Player Lat:" + playerLocation.GetLocationLat().ToString() + " Player Log:" + playerLocation.GetLocationLon().ToString() + "\n "+"request status" + serverTalker.request_result+"\n" +"Nearby Mushroom:" + spawnOnMap._locationStrings.Count;
+        //LocationStatus playerLocation = GameObject.Find("Canvas").GetComponent<LocationStatus>();
+        coordinates.text = "Player Lat:" + GPS.Instance.latitude.ToString() + " Player Log:"
+            + GPS.Instance.longitude.ToString() + "\n "+"request status" + serverTalker.request_status+"\n" +"Nearby Mushroom:" 
+            + spawnOnMap._locationStrings.Count + "isset Mushroom:" + spawnOnMap.isset;
 
 
     }
