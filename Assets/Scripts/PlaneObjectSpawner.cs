@@ -32,7 +32,7 @@ public class PlaneObjectSpawner : MonoBehaviour
         _arPlaneManager = GetComponent<ARPlaneManager>();
         RandomSpawn();
         new WaitForSeconds(10);
-        GameManager.Instance.MapNavigate = true;
+        //GameManager.Instance.MapNavigate = true;
         
     }
 
@@ -61,6 +61,6 @@ public class PlaneObjectSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+        RandomSpawn();
     }
 }
